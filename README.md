@@ -1,4 +1,4 @@
-# tttm-rango
+# tttm-mango
 
 ## Description
 [tttm-mango](https://github.com/perkzen/tttm-mango) is a minmax player server for
