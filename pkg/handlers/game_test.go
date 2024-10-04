@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 func TestMoveHandler(t *testing.T) {
@@ -108,7 +109,10 @@ func TestMoveHandler(t *testing.T) {
 
 			rr := httptest.NewRecorder()
 			handler := http.HandlerFunc(HandleGetMove)
+
+			startTime := time.Now() // Start time measurement
 			handler.ServeHTTP(rr, req)
+			elapsedTime := time.Since(startTime) // Calculate elapsed time
 
 			if rr.Code != tt.wantStatus {
 				t.Errorf("Expected status %v, got %v", tt.wantStatus, rr.Code)
@@ -116,6 +120,10 @@ func TestMoveHandler(t *testing.T) {
 
 			if rr.Body.String() != tt.wantBody {
 				t.Errorf("Expected body %v, got %v", tt.wantBody, rr.Body.String())
+			}
+
+			if tt.name == "Response time should be less than 3s" && elapsedTime >= 3*time.Second {
+				t.Errorf("Expected response time to be less than 3 seconds, got %v", elapsedTime)
 			}
 		})
 	}
