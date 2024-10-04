@@ -58,7 +58,7 @@ func TestMoveHandler(t *testing.T) {
 			wantBody:   "Move:X-0-0", // First move is usually a corner
 		},
 
-		// 5x5 grid
+		//5x5 grid
 		//{
 		//	name:       "Valid move with 5x5 grid",
 		//	query:      "?gid=1234&size=5&playing=O&moves=X-0-0",

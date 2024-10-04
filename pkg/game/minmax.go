@@ -8,7 +8,8 @@ var score = map[Result]int{
 	Tie:  0,
 }
 
-func minmax(board Board, depth int, isMaximizing bool) int {
+// minmax function with Alpha-Beta Pruning
+func minmax(board Board, depth int, isMaximizing bool, alpha int, beta int) int {
 	winner := checkWinner(board)
 
 	if winner != Tie {
@@ -21,26 +22,37 @@ func minmax(board Board, depth int, isMaximizing bool) int {
 			for j := 0; j < len(board); j++ {
 				if board[i][j] == Empty {
 					board[i][j] = X
-					score := minmax(board, depth+1, false)
+					score := minmax(board, depth+1, false, alpha, beta)
 					board[i][j] = Empty
 					bestScore = max(bestScore, score)
+					alpha = max(alpha, bestScore)
+
+					// Alpha-Beta Pruning
+					if beta <= alpha {
+						break // Cut off the remaining branches
+					}
+				}
+			}
+		}
+		return bestScore
+	} else {
+		bestScore := math.MaxInt
+		for i := 0; i < len(board); i++ {
+			for j := 0; j < len(board); j++ {
+				if board[i][j] == Empty {
+					board[i][j] = O
+					score := minmax(board, depth+1, true, alpha, beta)
+					board[i][j] = Empty
+					bestScore = min(bestScore, score)
+					beta = min(beta, bestScore)
+
+					// Alpha-Beta Pruning
+					if beta <= alpha {
+						break // Cut off the remaining branches
+					}
 				}
 			}
 		}
 		return bestScore
 	}
-
-	bestScore := math.MaxInt
-	for i := 0; i < len(board); i++ {
-		for j := 0; j < len(board); j++ {
-			if board[i][j] == Empty {
-				board[i][j] = O
-				score := minmax(board, depth+1, true)
-				board[i][j] = Empty
-				bestScore = min(bestScore, score)
-			}
-		}
-	}
-
-	return bestScore
 }

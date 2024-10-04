@@ -23,7 +23,7 @@ func (g *Game) GetBestMove(player Symbol) [2]int {
 			if g.Board[i][j] == Empty {
 				g.Board[i][j] = player
 
-				score := minmax(g.Board, 0, false)
+				score := minmax(g.Board, 0, true, math.MinInt, math.MaxInt)
 
 				g.Board[i][j] = Empty
 
