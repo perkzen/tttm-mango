@@ -1,7 +1,7 @@
 # tttm-rango
 
 ## Description
-[tttm-rango](https://github.com/perkzen/tttm-rango) is a random player server for
+[tttm-mango](https://github.com/perkzen/tttm-mango) is a minmax player server for
 the [tttm](https://github.com/ogrodje/tttm) tic-tac-toe challenge.
 
 ## Usage
