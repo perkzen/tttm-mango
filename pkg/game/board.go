@@ -10,8 +10,12 @@ type Result string
 const (
 	WinX Result = "X"
 	WinO Result = "O"
-	Tie  Result = "TIE"
+	Tie  Result = "tie"
 )
+
+func (r Result) String() string {
+	return string(r)
+}
 
 type Board [][]Symbol
 
@@ -58,43 +62,44 @@ func newEmptyBoard(size int) Board {
 	return board
 }
 
-func checkWinner3x3Board(board [][]Symbol) Result {
+func (board Board) checkWinner3x3Board() Result {
 	size := 3
 
 	// check rows
 	for i := 0; i < size; i++ {
 		if board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0] != Empty {
-			return Result(board[i][0])
+			return Result(board[i][0].String())
 		}
 	}
 
 	// check columns
 	for i := 0; i < size; i++ {
 		if board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[0][i] != Empty {
-			return Result(board[0][i])
+			return Result(board[0][i].String())
 		}
 	}
 
 	// check diagonals
 	if board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0] != Empty {
-		return Result(board[0][0])
+		return Result(board[0][0].String())
 	}
 
 	if board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] != Empty {
-		return Result(board[0][2])
+		return Result(board[0][2].String())
 	}
 
 	return Tie
 }
 
-func checkWinnerLargeBoard(board [][]Symbol, size int) Result {
-	winCondition := 4 // 4 in a row to win
+func (board Board) checkWinnerLargeBoard() Result {
+	winCondition := 4 // 4 in a Row to win
+	size := len(board)
 
 	// check rows
 	for i := 0; i < size; i++ {
 		for j := 0; j <= size-winCondition; j++ {
 			if board[i][j] != Empty && board[i][j] == board[i][j+1] && board[i][j+1] == board[i][j+2] && board[i][j+2] == board[i][j+3] {
-				return Result(board[i][j])
+				return Result(board[i][j].String())
 			}
 		}
 	}
@@ -103,7 +108,7 @@ func checkWinnerLargeBoard(board [][]Symbol, size int) Result {
 	for i := 0; i <= size-winCondition; i++ {
 		for j := 0; j < size; j++ {
 			if board[i][j] != Empty && board[i][j] == board[i+1][j] && board[i+1][j] == board[i+2][j] && board[i+2][j] == board[i+3][j] {
-				return Result(board[i][j])
+				return Result(board[i][j].String())
 			}
 		}
 	}
@@ -121,7 +126,7 @@ func checkWinnerLargeBoard(board [][]Symbol, size int) Result {
 	for i := 0; i <= size-winCondition; i++ {
 		for j := winCondition - 1; j < size; j++ {
 			if board[i][j] != Empty && board[i][j] == board[i+1][j-1] && board[i+1][j-1] == board[i+2][j-2] && board[i+2][j-2] == board[i+3][j-3] {
-				return Result(board[i][j])
+				return Result(board[i][j].String())
 			}
 		}
 	}
@@ -129,18 +134,13 @@ func checkWinnerLargeBoard(board [][]Symbol, size int) Result {
 	return Tie
 }
 
-func checkWinner(board Board) Result {
+func (board Board) checkWinner() Result {
 	size := len(board)
 
 	if size == 3 {
-		winner := checkWinner3x3Board(board)
+		winner := board.checkWinner3x3Board()
 		return winner
 	}
 
-	if size == 5 || size == 7 {
-		winner := checkWinnerLargeBoard(board, size)
-		return winner
-	}
-
-	return Tie
+	return board.checkWinnerLargeBoard()
 }

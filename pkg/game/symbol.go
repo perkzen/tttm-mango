@@ -20,3 +20,14 @@ func ToPlayerSymbol(s string) (Symbol, error) {
 		return Empty, fmt.Errorf("invalid player symbol: %s", s)
 	}
 }
+
+func opponentSymbol(player Symbol) Symbol {
+	if player == X {
+		return O
+	}
+	return X
+}
+
+func (s Symbol) String() string {
+	return string(s)
+}
