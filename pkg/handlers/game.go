@@ -52,7 +52,7 @@ func HandleGetMove(w http.ResponseWriter, r *http.Request) {
 	game := tictactoe.NewGame(moveQueryParams.Gid, moveQueryParams.Size, moveQueryParams.Moves)
 	bestMove := game.GetBestMove(moveQueryParams.Playing)
 
-	message := fmt.Sprintf("Move:%s_%d_%d", moveQueryParams.Playing, bestMove[0], bestMove[1])
+	message := fmt.Sprintf("Move:%s-%d-%d", moveQueryParams.Playing, bestMove[0], bestMove[1])
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(message))

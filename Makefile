@@ -7,3 +7,6 @@ dev:
 run:
 	@echo "Running $(APP_NAME)..."
 	go run $(MAIN_FILE)
+test:
+	@echo "Running tests..."
+	go test -v ./...
