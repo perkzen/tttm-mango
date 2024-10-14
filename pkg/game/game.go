@@ -20,7 +20,7 @@ func NewGame(gid string, size int, moves string) *Game {
 func (g *Game) GetBestMove(player Symbol) *BestMove {
 	bestMove := newBestMove(-1, -1, math.MinInt)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1500*time.Millisecond)
 	defer cancel()
 
 	for i := 0; i < g.Size; i++ {
