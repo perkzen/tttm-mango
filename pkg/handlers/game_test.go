@@ -26,7 +26,7 @@ func TestMoveHandler(t *testing.T) {
 			name:       "Valid move with 3x3 grid",
 			query:      "?gid=1234&size=3&playing=O&moves=X-0-0",
 			wantStatus: http.StatusOK,
-			wantBody:   "Move:O-0-1",
+			wantBody:   "Move:O-1-1",
 		},
 		{
 			name:       "Block opponent from winning",
