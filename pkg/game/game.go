@@ -17,6 +17,14 @@ func NewGame(gid string, size int, moves string) *Game {
 	return &Game{Gid: gid, Board: board, Size: size}
 }
 
+type BestMove struct {
+	Row, Col, Score int
+}
+
+func newBestMove(row, col, score int) *BestMove {
+	return &BestMove{Row: row, Col: col, Score: score}
+}
+
 func (g *Game) GetBestMove(player Symbol) *BestMove {
 	bestMove := newBestMove(-1, -1, math.MinInt)
 

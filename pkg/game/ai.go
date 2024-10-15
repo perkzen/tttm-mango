@@ -3,120 +3,72 @@ package game
 import (
 	"context"
 	"math"
-	"sync"
 )
 
-type BestMove struct {
-	Row, Col, Score int
-}
-
-func newBestMove(row, col, score int) *BestMove {
-	return &BestMove{Row: row, Col: col, Score: score}
-}
-
-type TranspositionTable struct {
-	m map[string]int
-	sync.RWMutex
-}
-
-func newTranspositionTable() *TranspositionTable {
-	return &TranspositionTable{m: make(map[string]int)}
-}
-
-var transpositionTable = newTranspositionTable()
-
 func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax bool, alpha, beta int) int {
-	for _, transposedBoard := range board.getTranspositions() {
-		boardKey := transposedBoard.String()
-		transpositionTable.RLock()
-		if cachedScore, found := transpositionTable.m[boardKey]; found {
-			transpositionTable.RUnlock()
-			return cachedScore
-		}
-		transpositionTable.RUnlock()
+	if cachedScore, found := transpositionTable.getCachedTransposition(board); found {
+		return cachedScore
 	}
 
-	score := board.evaluate(player)
-	if score == 1 || score == -1 {
-		cacheTranspositions(board, score)
+	if score := board.evaluate(player); score == 1 || score == -1 {
+		transpositionTable.cacheTransposition(board, score)
 		return score
 	}
 
 	if board.IsFull() {
-		cacheTranspositions(board, 0)
+		transpositionTable.cacheTransposition(board, 0)
 		return 0
 	}
 
 	opponent := OpponentSymbol(player)
 
 	if isMax {
-		best := math.MinInt
-
-		for _, cell := range board.emptyCells() {
-			i, j := cell.Row, cell.Col
-
-			board[i][j] = player
-			best = _max(best, minimax(ctx, board, player, depth+1, false, alpha, beta))
-			board[i][j] = Empty
-
-			alpha = _max(alpha, best)
-			if beta <= alpha {
-				break
-			}
-
-			if isTimeout(ctx) {
-				break
-			}
-		}
-
-		cacheTranspositions(board, best)
-		return best
-
+		return maximizeMove(ctx, board, player, alpha, beta)
 	} else {
-		best := math.MaxInt
+		return minimizeMove(ctx, board, opponent, alpha, beta)
+	}
+}
 
-		for _, cell := range board.emptyCells() {
-			i, j := cell.Row, cell.Col
-			board[i][j] = opponent
-			best = _min(best, minimax(ctx, board, player, depth+1, true, alpha, beta))
-			board[i][j] = Empty
+func maximizeMove(ctx context.Context, board Board, player Symbol, alpha, beta int) int {
+	bestScore := math.MinInt
+	for _, cell := range board.emptyCells() {
+		applyMove(board, cell, player)
 
-			beta = _min(beta, best)
-			if beta <= alpha {
-				break
-			}
+		bestScore = max(bestScore, minimax(ctx, board, player, 0, false, alpha, beta))
+		undoMove(board, cell)
 
-			if isTimeout(ctx) {
-				break
-			}
+		alpha = max(alpha, bestScore)
+		if beta <= alpha || isTimeout(ctx) {
+			break
 		}
-
-		cacheTranspositions(board, best)
-		return best
 	}
+	transpositionTable.cacheTransposition(board, bestScore)
+	return bestScore
 }
 
-func cacheTranspositions(board Board, score int) {
-	for _, transposedBoard := range board.getTranspositions() {
-		boardKey := transposedBoard.String()
-		transpositionTable.Lock()
-		transpositionTable.m[boardKey] = score
-		transpositionTable.Unlock()
+func minimizeMove(ctx context.Context, board Board, opponent Symbol, alpha, beta int) int {
+	bestScore := math.MaxInt
+	for _, cell := range board.emptyCells() {
+		applyMove(board, cell, opponent)
+
+		bestScore = min(bestScore, minimax(ctx, board, opponent, 0, true, alpha, beta))
+		undoMove(board, cell)
+
+		beta = min(beta, bestScore)
+		if beta <= alpha || isTimeout(ctx) {
+			break
+		}
 	}
+	transpositionTable.cacheTransposition(board, bestScore)
+	return bestScore
 }
 
-func _max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
+func applyMove(board Board, cell Cell, player Symbol) {
+	board[cell.Row][cell.Col] = player
 }
 
-func _min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+func undoMove(board Board, cell Cell) {
+	board[cell.Row][cell.Col] = Empty
 }
 
 func isTimeout(ctx context.Context) bool {
@@ -126,4 +78,18 @@ func isTimeout(ctx context.Context) bool {
 	default:
 		return false
 	}
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
