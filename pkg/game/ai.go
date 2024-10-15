@@ -13,62 +13,55 @@ func newBestMove(row, col, score int) *BestMove {
 	return &BestMove{Row: row, Col: col, score: score}
 }
 
-func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax bool, alpha, beta int) *BestMove {
+func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax bool, alpha, beta int) int {
 	score := board.evaluate(player)
 
 	if score == 1 || score == -1 {
-		return newBestMove(-1, -1, score)
+		return score
 	}
 
-	var bestMove *BestMove
+	if board.IsFull() {
+		return 0
+	}
+
+	var bestScore int
 
 	if isMax {
-		bestMove = newBestMove(-1, -1, math.MinInt)
+		for _, cell := range board.emptyCells() {
+			bestScore = math.MinInt
+			i, j := cell.Row, cell.Col
+			board[i][j] = player
+			bestScore = _max(bestScore, minimax(ctx, board, player, depth+1, false, alpha, beta))
+			board[i][j] = Empty
+			alpha = _max(alpha, bestScore)
+
+			if beta <= alpha {
+				break
+			}
+		}
+
 	} else {
-		bestMove = newBestMove(-1, -1, math.MaxInt)
-	}
-
-	for _, cell := range board.emptyCells() {
-		row, col := cell.Row, cell.Col
-
-		if isMax {
-
-			board[row][col] = player
-			move := minimax(ctx, board, player, depth+1, !isMax, alpha, beta)
-			board[row][col] = Empty
-
-			if move.score > bestMove.score {
-				bestMove = newBestMove(row, col, move.score)
-			}
-
-			alpha = _max(alpha, bestMove.score)
-
-			if beta <= alpha {
-				break
-			}
-
-		} else {
-			board[row][col] = OpponentSymbol(player)
-			move := minimax(ctx, board, player, depth+1, !isMax, alpha, beta)
-			board[row][col] = Empty
-
-			if move.score < bestMove.score {
-				bestMove = newBestMove(row, col, move.score)
-			}
-
-			beta = _min(beta, bestMove.score)
+		bestScore = math.MaxInt
+		for _, cell := range board.emptyCells() {
+			i, j := cell.Row, cell.Col
+			board[i][j] = OpponentSymbol(player)
+			bestScore = _min(bestScore, minimax(ctx, board, player, depth+1, true, alpha, beta))
+			board[i][j] = Empty
+			beta = _min(beta, bestScore)
 
 			if beta <= alpha {
 				break
 			}
 		}
 
-		if isTimeout(ctx) {
-			return bestMove
-		}
 	}
 
-	return bestMove
+	if isTimeout(ctx) {
+		return bestScore
+	}
+
+	return bestScore
+
 }
 
 func _max(a, b int) int {

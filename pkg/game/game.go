@@ -28,11 +28,11 @@ func (g *Game) GetBestMove(player Symbol) *BestMove {
 	for _, cell := range emptyCells {
 		i, j := cell.Row, cell.Col
 		g.Board[i][j] = player
-		move := minimax(ctx, g.Board, player, 0, false, math.MinInt, math.MaxInt)
+		score := minimax(ctx, g.Board, player, 0, false, math.MinInt, math.MaxInt)
 		g.Board[i][j] = Empty
 
-		if move.score > bestMove.score {
-			bestMove = newBestMove(i, j, move.score)
+		if score > bestMove.score {
+			bestMove = newBestMove(i, j, score)
 		}
 	}
 
