@@ -7,7 +7,7 @@ type Symbol string
 const (
 	X     Symbol = "X"
 	O     Symbol = "O"
-	Empty Symbol = ""
+	Empty Symbol = " "
 )
 
 func PlayerSymbol(s string) (Symbol, error) {
