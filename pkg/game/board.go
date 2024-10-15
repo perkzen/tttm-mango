@@ -31,7 +31,7 @@ func movesToBoard(size int, moves string) Board {
 			continue
 		}
 
-		symbol, err := ToPlayerSymbol(parts[0])
+		symbol, err := PlayerSymbol(parts[0])
 		if err != nil {
 			continue
 		}

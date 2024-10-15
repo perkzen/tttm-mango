@@ -22,7 +22,7 @@ func newGetMoveQueryParams(query url.Values) (*GetMoveQueryParams, error) {
 		size = 3
 	}
 
-	player, err := tictactoe.ToPlayerSymbol(query.Get("playing"))
+	player, err := tictactoe.PlayerSymbol(query.Get("playing"))
 	if err != nil {
 		return nil, err
 	}

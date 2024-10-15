@@ -26,60 +26,56 @@ func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax b
 		return newBestMove(-1, -1, scores[winner.String()])
 	}
 
+	var bestMove *BestMove
 	if isMax {
-		bestMove := newBestMove(-1, -1, math.MinInt)
-		for i := 0; i < len(board); i++ {
-			for j := 0; j < len(board); j++ {
-				if board[i][j] == Empty {
-					board[i][j] = player
-					move := minimax(ctx, board, player, depth+1, false, alpha, beta)
-					board[i][j] = Empty
-
-					if move.score > bestMove.score {
-						bestMove = newBestMove(i, j, move.score)
-					}
-
-					alpha = max(alpha, bestMove.score)
-
-					select {
-					case <-ctx.Done():
-						return bestMove
-					default:
-					}
-
-					if beta <= alpha {
-						break
-					}
-				}
-			}
-		}
-		return bestMove
+		bestMove = newBestMove(-1, -1, math.MinInt)
 	} else {
-		bestMove := newBestMove(-1, -1, math.MaxInt)
-		for i := 0; i < len(board); i++ {
-			for j := 0; j < len(board); j++ {
-				if board[i][j] == Empty {
-					board[i][j] = opponentSymbol(player)
-					move := minimax(ctx, board, player, depth+1, true, alpha, beta)
-					board[i][j] = Empty
-
-					if move.score < bestMove.score {
-						bestMove = newBestMove(i, j, move.score)
-					}
-					beta = min(beta, bestMove.score)
-
-					select {
-					case <-ctx.Done():
-						return bestMove
-					default:
-					}
-
-					if beta <= alpha {
-						break
-					}
-				}
-			}
-		}
-		return bestMove
+		bestMove = newBestMove(-1, -1, math.MaxInt)
 	}
+
+	for _, cell := range board.emptyCells() {
+		row, col := cell.Row, cell.Col
+
+		board[row][col] = player
+		move := minimax(ctx, board, opponentSymbol(player), depth+1, !isMax, alpha, beta)
+		board[row][col] = Empty
+
+		if isMax {
+			if move.score > bestMove.score {
+				bestMove = newBestMove(row, col, move.score)
+			}
+			alpha = _max(alpha, bestMove.score)
+		} else {
+			if move.score < bestMove.score {
+				bestMove = newBestMove(row, col, move.score)
+			}
+			beta = _min(beta, bestMove.score)
+		}
+
+		if beta <= alpha {
+			break
+		}
+
+		select {
+		case <-ctx.Done():
+			return bestMove
+		default:
+		}
+	}
+
+	return bestMove
+}
+
+func _max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func _min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

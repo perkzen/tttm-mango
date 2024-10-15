@@ -10,7 +10,7 @@ const (
 	Empty Symbol = ""
 )
 
-func ToPlayerSymbol(s string) (Symbol, error) {
+func PlayerSymbol(s string) (Symbol, error) {
 	switch s {
 	case "X":
 		return X, nil
