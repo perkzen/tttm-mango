@@ -31,7 +31,7 @@ func (g *Game) GetBestMove(player Symbol) *BestMove {
 		score := minimax(ctx, g.Board, player, 0, false, math.MinInt, math.MaxInt)
 		g.Board[i][j] = Empty
 
-		if score > bestMove.score {
+		if score > bestMove.Score {
 			bestMove = newBestMove(i, j, score)
 		}
 	}
