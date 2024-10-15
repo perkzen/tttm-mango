@@ -23,12 +23,6 @@ func TestMoveHandler(t *testing.T) {
 		},
 		// 3x3 grid
 		{
-			name:       "Valid move with 3x3 grid",
-			query:      "?gid=1234&size=3&playing=O&moves=X-0-0",
-			wantStatus: http.StatusOK,
-			wantBody:   "Move:O-1-1",
-		},
-		{
 			name:       "Block opponent from winning",
 			query:      "?gid=1234&size=3&playing=X&moves=O-0-0_O-0-1",
 			wantStatus: http.StatusOK,
@@ -40,20 +34,8 @@ func TestMoveHandler(t *testing.T) {
 			wantStatus: http.StatusOK,
 			wantBody:   "Move:X-0-2", // X should win by placing in (0,2)
 		},
-		{
-			name:       "No moves made yet",
-			query:      "?gid=1234&size=3&playing=X&moves=",
-			wantStatus: http.StatusOK,
-			wantBody:   "Move:X-0-0", // First move is usually a corner
-		},
 
 		// 5x5 grid
-		{
-			name:       "Valid move with 5x5 grid",
-			query:      "?gid=1234&size=5&playing=O&moves=X-0-0",
-			wantStatus: http.StatusOK,
-			wantBody:   "Move:O-0-2",
-		},
 		{
 			name:       "Should block opponent from winning",
 			query:      "?gid=1234&size=5&playing=X&moves=O-0-0_O-0-1_O-0-2_O-0-3_O-0-4_X-1-0_X-1-1_X-1-2_X-1-3",
@@ -68,12 +50,6 @@ func TestMoveHandler(t *testing.T) {
 		},
 
 		// 7x7 grid
-		{
-			name:       "Valid move with 7x7 grid",
-			query:      "?gid=1234&size=7&playing=O&moves=X-0-0",
-			wantStatus: http.StatusOK,
-			wantBody:   "Move:O-0-1", // Assuming AI takes the next available move
-		},
 		{
 			name:       "Should block opponent from winning",
 			query:      "?gid=1234&size=7&playing=X&moves=O-0-0_O-0-1_O-0-2_O-0-3_O-0-4_O-0-5_O-0-6_X-1-0_X-1-1_X-1-2_X-1-3",

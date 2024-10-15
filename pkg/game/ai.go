@@ -5,18 +5,8 @@ import (
 	"math"
 )
 
-type BestMove struct {
-	Row, Col, score int
-}
-
-func newBestMove(row, col, score int) *BestMove {
-	return &BestMove{Row: row, Col: col, score: score}
-}
-
 func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax bool, alpha, beta int) int {
-	score := board.evaluate(player)
-
-	if score == 1 || score == -1 {
+	if score := board.evaluate(player); score == 1 || score == -1 {
 		return score
 	}
 
@@ -27,67 +17,50 @@ func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax b
 	opponent := OpponentSymbol(player)
 
 	if isMax {
-		best := math.MinInt
-
-		for _, cell := range board.emptyCells() {
-			i, j := cell.Row, cell.Col
-
-			board[i][j] = player
-			best = _max(best, minimax(ctx, board, player, depth+1, false, alpha, beta))
-			board[i][j] = Empty
-
-			alpha = _max(alpha, best)
-
-			if beta <= alpha {
-				break
-			}
-
-			if isTimeout(ctx) {
-				break
-			}
-		}
-
-		return best
-
+		return maximizeMove(ctx, board, player, alpha, beta)
 	} else {
+		return minimizeMove(ctx, board, opponent, alpha, beta)
+	}
+}
 
-		best := math.MaxInt
+func maximizeMove(ctx context.Context, board Board, player Symbol, alpha, beta int) int {
+	bestScore := math.MinInt
+	for _, cell := range board.emptyCells() {
+		applyMove(board, cell, player)
 
-		for _, cell := range board.emptyCells() {
-			i, j := cell.Row, cell.Col
+		bestScore = max(bestScore, minimax(ctx, board, player, 0, false, alpha, beta))
+		undoMove(board, cell)
 
-			board[i][j] = opponent
-			best = _min(best, minimax(ctx, board, player, depth+1, true, alpha, beta))
-			board[i][j] = Empty
-
-			beta = _min(beta, best)
-
-			if beta <= alpha {
-				break
-			}
-
-			if isTimeout(ctx) {
-				break
-			}
+		alpha = max(alpha, bestScore)
+		if beta <= alpha || isTimeout(ctx) {
+			break
 		}
-
-		return best
-
 	}
+	return bestScore
 }
 
-func _max(a, b int) int {
-	if a > b {
-		return a
+func minimizeMove(ctx context.Context, board Board, opponent Symbol, alpha, beta int) int {
+	bestScore := math.MaxInt
+	for _, cell := range board.emptyCells() {
+		applyMove(board, cell, opponent)
+
+		bestScore = min(bestScore, minimax(ctx, board, opponent, 0, true, alpha, beta))
+		undoMove(board, cell)
+
+		beta = min(beta, bestScore)
+		if beta <= alpha || isTimeout(ctx) {
+			break
+		}
 	}
-	return b
+	return bestScore
 }
 
-func _min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+func applyMove(board Board, cell Cell, player Symbol) {
+	board[cell.Row][cell.Col] = player
+}
+
+func undoMove(board Board, cell Cell) {
+	board[cell.Row][cell.Col] = Empty
 }
 
 func isTimeout(ctx context.Context) bool {
@@ -97,4 +70,18 @@ func isTimeout(ctx context.Context) bool {
 	default:
 		return false
 	}
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
