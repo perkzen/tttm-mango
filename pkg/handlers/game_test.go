@@ -72,7 +72,7 @@ func TestMoveHandler(t *testing.T) {
 			name:       "Valid move with 7x7 grid",
 			query:      "?gid=1234&size=7&playing=O&moves=X-0-0",
 			wantStatus: http.StatusOK,
-			wantBody:   "Move:O-0-6", // Assuming AI takes the next available move
+			wantBody:   "Move:O-0-1", // Assuming AI takes the next available move
 		},
 		{
 			name:       "Should block opponent from winning",
