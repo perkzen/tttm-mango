@@ -20,12 +20,10 @@ func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax b
 		return 0
 	}
 
-	opponent := OpponentSymbol(player)
-
 	if isMax {
 		return maximizeMove(ctx, board, player, alpha, beta)
 	} else {
-		return minimizeMove(ctx, board, opponent, alpha, beta)
+		return minimizeMove(ctx, board, player, alpha, beta)
 	}
 }
 
@@ -46,12 +44,12 @@ func maximizeMove(ctx context.Context, board Board, player Symbol, alpha, beta i
 	return bestScore
 }
 
-func minimizeMove(ctx context.Context, board Board, opponent Symbol, alpha, beta int) int {
+func minimizeMove(ctx context.Context, board Board, player Symbol, alpha, beta int) int {
 	bestScore := math.MaxInt
 	for _, cell := range board.emptyCells() {
-		applyMove(board, cell, opponent)
+		applyMove(board, cell, OpponentSymbol(player))
 
-		bestScore = min(bestScore, minimax(ctx, board, opponent, 0, true, alpha, beta))
+		bestScore = min(bestScore, minimax(ctx, board, player, 0, true, alpha, beta))
 		undoMove(board, cell)
 
 		beta = min(beta, bestScore)
