@@ -13,14 +13,31 @@ func newBestMove(row, col, score int) *BestMove {
 	return &BestMove{Row: row, Col: col, score: score}
 }
 
+var transpositionTable = make(map[string]int)
+
 func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax bool, alpha, beta int) int {
+	for _, transposedBoard := range board.getTranspositions() {
+		boardKey := transposedBoard.String()
+		if cachedScore, found := transpositionTable[boardKey]; found {
+			return cachedScore
+		}
+	}
+
 	score := board.evaluate(player)
 
 	if score == 1 || score == -1 {
+		for _, transposedBoard := range board.getTranspositions() {
+			boardKey := transposedBoard.String()
+			transpositionTable[boardKey] = score
+		}
 		return score
 	}
 
 	if board.IsFull() {
+		for _, transposedBoard := range board.getTranspositions() {
+			boardKey := transposedBoard.String()
+			transpositionTable[boardKey] = 0
+		}
 		return 0
 	}
 
@@ -47,10 +64,14 @@ func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax b
 			}
 		}
 
+		for _, transposedBoard := range board.getTranspositions() {
+			boardKey := transposedBoard.String()
+			transpositionTable[boardKey] = best
+		}
+
 		return best
 
 	} else {
-
 		best := math.MaxInt
 
 		for _, cell := range board.emptyCells() {
@@ -71,8 +92,12 @@ func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax b
 			}
 		}
 
-		return best
+		for _, transposedBoard := range board.getTranspositions() {
+			boardKey := transposedBoard.String()
+			transpositionTable[boardKey] = best
+		}
 
+		return best
 	}
 }
 

@@ -184,3 +184,94 @@ func (b Board) IsFull() bool {
 	cells := b.emptyCells()
 	return len(cells) == 0
 }
+
+func (b Board) getTranspositions() []Board {
+	transpositions := make([]Board, 8)
+
+	transpositions[0] = b
+	transpositions[1] = b.rotate90()
+	transpositions[2] = transpositions[1].rotate90()
+	transpositions[3] = transpositions[2].rotate90()
+	transpositions[4] = b.reflectHorizontal()
+	transpositions[5] = b.reflectVertical()
+	transpositions[6] = b.reflectDiagonal()
+	transpositions[7] = b.reflectAntiDiagonal()
+
+	return transpositions
+}
+
+func (b Board) rotate90() Board {
+	size := len(b)
+
+	rotated := make(Board, size)
+	for i := 0; i < size; i++ {
+		rotated[i] = make([]Symbol, size)
+		for j := 0; j < size; j++ {
+			rotated[i][j] = b[size-j-1][i]
+		}
+	}
+	return rotated
+}
+
+func (b Board) reflectHorizontal() Board {
+	size := len(b)
+
+	reflected := make(Board, size)
+	for i := 0; i < size; i++ {
+		reflected[i] = make([]Symbol, size)
+		for j := 0; j < size; j++ {
+			reflected[i][j] = b[size-i-1][j]
+		}
+	}
+	return reflected
+}
+
+func (b Board) reflectVertical() Board {
+	size := len(b)
+
+	reflected := make(Board, size)
+	for i := 0; i < size; i++ {
+		reflected[i] = make([]Symbol, size)
+		for j := 0; j < size; j++ {
+			reflected[i][j] = b[i][size-j-1]
+		}
+	}
+	return reflected
+}
+
+func (b Board) reflectDiagonal() Board {
+	size := len(b)
+
+	reflected := make(Board, size)
+	for i := 0; i < size; i++ {
+		reflected[i] = make([]Symbol, size)
+		for j := 0; j < size; j++ {
+			reflected[i][j] = b[j][i]
+		}
+	}
+	return reflected
+}
+
+func (b Board) reflectAntiDiagonal() Board {
+	size := len(b)
+
+	reflected := make(Board, size)
+	for i := 0; i < size; i++ {
+		reflected[i] = make([]Symbol, size)
+		for j := 0; j < size; j++ {
+			reflected[i][j] = b[size-j-1][size-i-1]
+		}
+	}
+	return reflected
+}
+
+func (b Board) String() string {
+	var sb strings.Builder
+	for _, row := range b {
+		for _, cell := range row {
+			sb.WriteString(cell.String())
+		}
+		sb.WriteString("_")
+	}
+	return sb.String()
+}
