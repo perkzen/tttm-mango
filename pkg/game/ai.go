@@ -56,10 +56,8 @@ func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax b
 			break
 		}
 
-		select {
-		case <-ctx.Done():
+		if isTimeout(ctx) {
 			return bestMove
-		default:
 		}
 	}
 
@@ -78,4 +76,13 @@ func _min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func isTimeout(ctx context.Context) bool {
+	select {
+	case <-ctx.Done():
+		return true
+	default:
+		return false
+	}
 }

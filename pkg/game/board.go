@@ -162,3 +162,8 @@ func (b Board) emptyCells() []Cell {
 
 	return cells
 }
+
+func (b Board) IsFull() bool {
+	cells := b.emptyCells()
+	return len(cells) == 0
+}
