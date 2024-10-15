@@ -33,10 +33,11 @@ func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax b
 			i, j := cell.Row, cell.Col
 
 			board[i][j] = player
-			best = max(best, minimax(ctx, board, opponent, depth+1, false, alpha, beta))
+			best = _max(best, minimax(ctx, board, player, depth+1, false, alpha, beta))
 			board[i][j] = Empty
 
-			alpha = max(alpha, best)
+			alpha = _max(alpha, best)
+
 			if beta <= alpha {
 				break
 			}
@@ -55,11 +56,11 @@ func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax b
 		for _, cell := range board.emptyCells() {
 			i, j := cell.Row, cell.Col
 
-			board[i][j] = player
-			best = min(best, minimax(ctx, board, opponent, depth+1, true, alpha, beta))
+			board[i][j] = opponent
+			best = _min(best, minimax(ctx, board, player, depth+1, true, alpha, beta))
 			board[i][j] = Empty
 
-			beta = min(beta, best)
+			beta = _min(beta, best)
 
 			if beta <= alpha {
 				break
@@ -75,14 +76,14 @@ func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax b
 	}
 }
 
-func max(a, b int) int {
+func _max(a, b int) int {
 	if a > b {
 		return a
 	}
 	return b
 }
 
-func min(a, b int) int {
+func _min(a, b int) int {
 	if a < b {
 		return a
 	}
