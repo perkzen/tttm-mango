@@ -145,6 +145,23 @@ func (b Board) checkWinner() Result {
 	return b.checkWinnerLargeBoard()
 }
 
+func (b Board) evaluate(player Symbol) int {
+	winner := b.checkWinner()
+
+	playerSymbol, _ := PlayerSymbol(player.String())
+	opponentSymbol := OpponentSymbol(playerSymbol)
+
+	if winner.String() == playerSymbol.String() {
+		return 1
+	}
+
+	if winner.String() == opponentSymbol.String() {
+		return -1
+	}
+
+	return 0
+}
+
 type Cell struct {
 	Row, Col int
 }

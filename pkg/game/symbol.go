@@ -21,7 +21,7 @@ func PlayerSymbol(s string) (Symbol, error) {
 	}
 }
 
-func opponentSymbol(player Symbol) Symbol {
+func OpponentSymbol(player Symbol) Symbol {
 	if player == X {
 		return O
 	}
