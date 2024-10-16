@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax bool, alpha, beta int) int {
+func minimax(ctx context.Context, board Board, player Symbol, isMax bool, depth, alpha, beta int) int {
 	if cachedScore, found := transpositionTable.getCachedTransposition(board); found {
 		return cachedScore
 	}
@@ -21,21 +21,21 @@ func minimax(ctx context.Context, board Board, player Symbol, depth int, isMax b
 	}
 
 	if isMax {
-		return maximizeMove(ctx, board, player, alpha, beta)
+		return maximizeMove(ctx, board, player, depth, alpha, beta)
 	} else {
-		return minimizeMove(ctx, board, player, alpha, beta)
+		return minimizeMove(ctx, board, player, depth, alpha, beta)
 	}
 }
 
-func maximizeMove(ctx context.Context, board Board, player Symbol, alpha, beta int) int {
+func maximizeMove(ctx context.Context, board Board, player Symbol, depth, alpha, beta int) int {
 	bestScore := math.MinInt
 	for _, cell := range board.emptyCells() {
 		applyMove(board, cell, player)
 
-		bestScore = max(bestScore, minimax(ctx, board, player, 0, false, alpha, beta))
+		bestScore = _max(bestScore, minimax(ctx, board, player, false, depth+1, alpha, beta))
 		undoMove(board, cell)
 
-		alpha = max(alpha, bestScore)
+		alpha = _max(alpha, bestScore)
 		if beta <= alpha || isTimeout(ctx) {
 			break
 		}
@@ -44,15 +44,15 @@ func maximizeMove(ctx context.Context, board Board, player Symbol, alpha, beta i
 	return bestScore
 }
 
-func minimizeMove(ctx context.Context, board Board, player Symbol, alpha, beta int) int {
+func minimizeMove(ctx context.Context, board Board, player Symbol, depth, alpha, beta int) int {
 	bestScore := math.MaxInt
 	for _, cell := range board.emptyCells() {
 		applyMove(board, cell, OpponentSymbol(player))
 
-		bestScore = min(bestScore, minimax(ctx, board, player, 0, true, alpha, beta))
+		bestScore = _min(bestScore, minimax(ctx, board, player, true, depth+1, alpha, beta))
 		undoMove(board, cell)
 
-		beta = min(beta, bestScore)
+		beta = _min(beta, bestScore)
 		if beta <= alpha || isTimeout(ctx) {
 			break
 		}
@@ -78,14 +78,14 @@ func isTimeout(ctx context.Context) bool {
 	}
 }
 
-func max(a, b int) int {
+func _max(a, b int) int {
 	if a > b {
 		return a
 	}
 	return b
 }
 
-func min(a, b int) int {
+func _min(a, b int) int {
 	if a < b {
 		return a
 	}
