@@ -6,17 +6,12 @@ import (
 )
 
 func minimax(ctx context.Context, board Board, player Symbol, isMax bool, depth, alpha, beta int) int {
-	if cachedScore, found := transpositionTable.getCachedTransposition(board); found {
-		return cachedScore
-	}
 
 	if score := board.evaluate(player); score == 1 || score == -1 {
-		transpositionTable.cacheTransposition(board, score)
 		return score
 	}
 
 	if board.IsFull() {
-		transpositionTable.cacheTransposition(board, 0)
 		return 0
 	}
 
@@ -40,7 +35,6 @@ func maximizeMove(ctx context.Context, board Board, player Symbol, depth, alpha,
 			break
 		}
 	}
-	transpositionTable.cacheTransposition(board, bestScore)
 	return bestScore
 }
 
@@ -57,7 +51,6 @@ func minimizeMove(ctx context.Context, board Board, player Symbol, depth, alpha,
 			break
 		}
 	}
-	transpositionTable.cacheTransposition(board, bestScore)
 	return bestScore
 }
 
