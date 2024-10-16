@@ -1,7 +1,10 @@
 package game
 
+import "sync"
+
 type TranspositionTable struct {
 	cache map[string]int
+	mu    sync.Mutex
 }
 
 func newTranspositionTable() *TranspositionTable {
@@ -9,6 +12,9 @@ func newTranspositionTable() *TranspositionTable {
 }
 
 func (t *TranspositionTable) Lookup(b Board) (int, bool) {
+	transpositionTable.mu.Lock()
+	defer transpositionTable.mu.Unlock()
+
 	for _, transposition := range b.generateTranspositions() {
 		if score, ok := t.cache[transposition.String()]; ok {
 			return score, true
@@ -18,6 +24,9 @@ func (t *TranspositionTable) Lookup(b Board) (int, bool) {
 }
 
 func (t *TranspositionTable) Store(b Board, score int) {
+	transpositionTable.mu.Lock()
+	defer transpositionTable.mu.Unlock()
+
 	for _, transposition := range b.generateTranspositions() {
 		t.cache[transposition.String()] = score
 	}
