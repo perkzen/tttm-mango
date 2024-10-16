@@ -6,13 +6,15 @@ import (
 )
 
 func minimax(ctx context.Context, board Board, player Symbol, isMax bool, depth, alpha, beta int) int {
-
-	if score := board.evaluate(player); score == 1 || score == -1 {
+	// Check if this board or any transposition has already been evaluated
+	if score, ok := transpositionTable.Lookup(board); ok {
 		return score
 	}
 
-	if board.IsFull() {
-		return 0
+	score := board.evaluate(player)
+
+	if score != 0 || board.IsFull() || isTimeout(ctx) {
+		return score
 	}
 
 	if isMax {
@@ -35,6 +37,8 @@ func maximizeMove(ctx context.Context, board Board, player Symbol, depth, alpha,
 			break
 		}
 	}
+
+	transpositionTable.Store(board, bestScore)
 	return bestScore
 }
 
@@ -51,6 +55,8 @@ func minimizeMove(ctx context.Context, board Board, player Symbol, depth, alpha,
 			break
 		}
 	}
+
+	transpositionTable.Store(board, bestScore)
 	return bestScore
 }
 

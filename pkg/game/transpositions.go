@@ -1,36 +1,26 @@
 package game
 
-import "sync"
-
 type TranspositionTable struct {
-	m map[string]int
-	sync.RWMutex
+	cache map[string]int
 }
 
 func newTranspositionTable() *TranspositionTable {
-	return &TranspositionTable{m: make(map[string]int)}
+	return &TranspositionTable{cache: make(map[string]int)}
 }
 
-func (t *TranspositionTable) cacheTransposition(board Board, score int) {
-	for _, transposedBoard := range board.getTranspositions() {
-		boardKey := transposedBoard.String()
-		t.Lock()
-		t.m[boardKey] = score
-		t.Unlock()
-	}
-}
-
-func (t *TranspositionTable) getCachedTransposition(board Board) (int, bool) {
-	for _, transposedBoard := range board.getTranspositions() {
-		boardKey := transposedBoard.String()
-		t.RLock()
-		if cachedScore, found := t.m[boardKey]; found {
-			t.RUnlock()
-			return cachedScore, true
+func (t *TranspositionTable) Lookup(b Board) (int, bool) {
+	for _, transposition := range b.generateTranspositions() {
+		if score, ok := t.cache[transposition.String()]; ok {
+			return score, true
 		}
-		t.RUnlock()
 	}
 	return 0, false
+}
+
+func (t *TranspositionTable) Store(b Board, score int) {
+	for _, transposition := range b.generateTranspositions() {
+		t.cache[transposition.String()] = score
+	}
 }
 
 var transpositionTable = newTranspositionTable()

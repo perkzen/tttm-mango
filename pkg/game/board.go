@@ -185,19 +185,17 @@ func (b Board) IsFull() bool {
 	return len(cells) == 0
 }
 
-func (b Board) getTranspositions() []Board {
-	transpositions := make([]Board, 8)
-
-	transpositions[0] = b
-	transpositions[1] = b.rotate90()
-	transpositions[2] = transpositions[1].rotate90()
-	transpositions[3] = transpositions[2].rotate90()
-	transpositions[4] = b.reflectHorizontal()
-	transpositions[5] = b.reflectVertical()
-	transpositions[6] = b.reflectDiagonal()
-	transpositions[7] = b.reflectAntiDiagonal()
-
-	return transpositions
+func (b Board) generateTranspositions() []Board {
+	return []Board{
+		b,
+		b.rotate90(),
+		b.rotate90().rotate90(),
+		b.rotate90().rotate90().rotate90(),
+		b.reflectHorizontal(),
+		b.reflectVertical(),
+		b.reflectDiagonal(),
+		b.reflectAntiDiagonal(),
+	}
 }
 
 func (b Board) rotate90() Board {

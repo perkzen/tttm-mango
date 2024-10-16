@@ -31,9 +31,7 @@ func (g *Game) GetBestMove(player Symbol) *BestMove {
 	ctx, cancel := context.WithTimeout(context.Background(), 1500*time.Millisecond)
 	defer cancel()
 
-	emptyCells := g.Board.emptyCells()
-
-	for _, cell := range emptyCells {
+	for _, cell := range g.Board.emptyCells() {
 		i, j := cell.Row, cell.Col
 		g.Board[i][j] = player
 		score := minimax(ctx, g.Board, player, false, 0, math.MinInt, math.MaxInt)
